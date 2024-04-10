@@ -9,8 +9,8 @@ using UnityEngine.Rendering.Universal;
 
 public class Transition : MonoBehaviour
 {
-    public Action OnFinishedFadeInTransition;
-    public Action OnFinishedFadeOutTransition;
+    public static Action<int> OnFinishedFadeInTransition;
+    public static Action OnFinishedFadeOutTransition;
 
     [Header("settings")]
     [SerializeField] private Volume volume;
@@ -18,6 +18,7 @@ public class Transition : MonoBehaviour
     [SerializeField] private bool isTransitionActive = false;
     [SerializeField] private int beginStateValue = 0;
     [SerializeField] private int endStateValue = 1;
+    [SerializeField] private int targetScene;
 
     [Header("Material")]
     [SerializeField] private Material material;
@@ -34,19 +35,17 @@ public class Transition : MonoBehaviour
     [SerializeField] private bool activateGamma;
 
 
-
     private LiftGammaGain liftGammaGain;
     private Vector4 liftMinValue = new Vector4(0, 0, 0, 0);
     private Vector4 liftMaxValue = new Vector4(0, 0, 0, 1);
     private Vector4 liftCurrentValue = new Vector4(0, 0, 0, 0);
 
-
-
-
     // Start is called before the first frame update
     void Start()
     {
         SetupTransitionValues();
+        gameManager.OnActivateSceneSwitch += StartFadeInTransition;
+        ChangePlayerPos.OnChangePlayerPosFinished += StartFadeOutTransition;
     }
 
     private void Update()
@@ -69,12 +68,14 @@ public class Transition : MonoBehaviour
         {
             t = 1;
             isTransitionActive = false;
+            OnFinishedFadeInTransition?.Invoke(targetScene);
         }
 
         if (t < beginStateValue)
         {
             t = 0;
             isTransitionActive = false;
+            OnFinishedFadeOutTransition?.Invoke();
         }
     }
     private void SetupTransitionValues()
@@ -102,8 +103,9 @@ public class Transition : MonoBehaviour
         j += (Time.deltaTime * speedj) * transState;
     }
 
-    private void StartFadeInTransition()
+    private void StartFadeInTransition(int _targetScene)
     {
+        targetScene = _targetScene;
         transState = 1;
         isTransitionActive = true;
     }
