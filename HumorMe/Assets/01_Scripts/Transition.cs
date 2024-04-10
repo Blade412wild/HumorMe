@@ -9,13 +9,15 @@ using UnityEngine.Rendering.Universal;
 
 public class Transition : MonoBehaviour
 {
-    public Action OnStartTransition;
+    public Action OnFinishedFadeInTransition;
+    public Action OnFinishedFadeOutTransition;
+
     [Header("settings")]
     [SerializeField] private Volume volume;
     [SerializeField] private int transState = 1;  // 1 = trans in || 0 = trans out 
     [SerializeField] private bool isTransitionActive = false;
-    [SerializeField] private int beginStateValue = 0; 
-    [SerializeField] private int endStateValue = 1; 
+    [SerializeField] private int beginStateValue = 0;
+    [SerializeField] private int endStateValue = 1;
 
     [Header("Material")]
     [SerializeField] private Material material;
@@ -44,15 +46,7 @@ public class Transition : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        EventManagerEnum.Instance.Subscribe(EventManagerEnum.EventType.OnTransition, OnStartTransition);
-        OnStartTransition += StartTransitionMaterial;
-
-        volume.profile.TryGet(out liftGammaGain);
-
-        minColor = material.color;
-        maxColor = minColor;
-        maxColor = minColor * 10;
-
+        SetupTransitionValues();
     }
 
     private void Update()
@@ -71,19 +65,25 @@ public class Transition : MonoBehaviour
             StartTransitionMaterial();
         }
 
-        if(t > endStateValue)
+        if (t > endStateValue)
         {
             t = 1;
             isTransitionActive = false;
         }
 
-        if(t < beginStateValue)
+        if (t < beginStateValue)
         {
             t = 0;
             isTransitionActive = false;
         }
     }
-
+    private void SetupTransitionValues()
+    {
+        volume.profile.TryGet(out liftGammaGain);
+        minColor = material.color;
+        maxColor = minColor;
+        maxColor = minColor * 10;
+    }
     private void StartTransitionMaterial()
     {
         Color color = Vector4.Lerp(minColor, maxColor, j);
@@ -102,6 +102,16 @@ public class Transition : MonoBehaviour
         j += (Time.deltaTime * speedj) * transState;
     }
 
+    private void StartFadeInTransition()
+    {
+        transState = 1;
+        isTransitionActive = true;
+    }
+    private void StartFadeOutTransition()
+    {
+        transState = -1;
+        isTransitionActive = true;
+    }
 
 
 }
