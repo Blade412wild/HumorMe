@@ -17,16 +17,6 @@ public class StatManager : MonoBehaviour
         currentHumor = maxHealthBar;
         healthBar.SetMaxValue(maxHealthBar);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            DecreaseHumor(10);
-        }
-    }
-
     public void DecreaseHumor(float value)
     {
         currentHumor -= value;
@@ -36,5 +26,11 @@ public class StatManager : MonoBehaviour
     public void UpdateUI()
     {
         healthBar.SetValue(currentHumor);
+    }
+
+    public void TestEvent()
+    {
+        EventManagerEnum.Instance.TriggerEvent(EventManagerEnum.EventType.OnTransition);
+        Debug.Log("ivoked Event");
     }
 }

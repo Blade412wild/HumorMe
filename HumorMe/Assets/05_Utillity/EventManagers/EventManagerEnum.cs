@@ -8,6 +8,7 @@ public class EventManagerEnum : MonoBehaviour
     public enum EventType
     {
         OnButtonClicked,
+        OnTransition,
         // Add more events here as needed
     }
 
@@ -43,11 +44,13 @@ public class EventManagerEnum : MonoBehaviour
     // Subscribe to an event
     public void Subscribe(EventType eventType, Action listener)
     {
+        Debug.Log(listener);
         if (!eventDictionary.ContainsKey(eventType))
         {
             eventDictionary[eventType] = null;
         }
         eventDictionary[eventType] += listener;
+        Debug.Log(" added : " + listener + " to the dictionary");
     }
 
     // Unsubscribe from an event
@@ -66,6 +69,7 @@ public class EventManagerEnum : MonoBehaviour
         if (eventDictionary.TryGetValue(eventType, out thisEvent))
         {
             thisEvent?.Invoke();
+            Debug.Log(" triggerd event : " + thisEvent);
         }
     }
 }
